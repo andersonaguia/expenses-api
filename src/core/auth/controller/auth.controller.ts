@@ -5,12 +5,17 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { SignInDTO } from '../dto/signin.dto';
 import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { JwtTokenDto } from '../dto/jwt-token.dto';
+import { Roles } from '../guards/decorators/roles.decorator';
+import { UserRole } from 'src/modules/users/enum/user.role';
+import { RolesGuard } from '../guards/roles/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('auth')
 export class authController {
@@ -29,6 +34,8 @@ export class authController {
     }
   }
 
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   @Post('/signup')
   async signUp(@Body() user: CreateUserDto): Promise<DefaultResponseDto> {
     try {
