@@ -48,7 +48,7 @@ export class UsersService {
           });
         }
       } catch (error) {
-        if (error.code == 23505)
+        if (error.code == 'ER_DUP_ENTRY')
           reject({
             code: 409,
             message:

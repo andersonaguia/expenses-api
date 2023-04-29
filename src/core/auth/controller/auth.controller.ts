@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
@@ -37,10 +38,12 @@ export class authController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   @Post('/signup')
-  async signUp(@Body() user: CreateUserDto): Promise<DefaultResponseDto> {
+  async signUp(
+    @Body() user: CreateUserDto,
+    @Request() req: any,
+  ): Promise<DefaultResponseDto> {
     try {
-      const res = await this.authService.signUp(user);
-      return res;
+      return await this.authService.signUp(user);
     } catch (error) {
       if (error.code == 409) {
         throw new HttpException(error, HttpStatus.CONFLICT);

@@ -19,7 +19,6 @@ export class AuthService {
     return new Promise(async (resolve, reject) => {
       try {
         const user = await this.checkCredentials(credentials);
-        console.log(user);
         if (!user) {
           reject({ code: 401, message: 'E-mail ou senha incorretos' });
         }
