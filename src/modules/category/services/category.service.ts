@@ -180,4 +180,53 @@ export class CategoryService {
       }
     });
   }
+
+  delete(categoryId: number, req: any): Promise<DefaultResponseDto> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const user = await this.usersService.findUserById(+req.user.id);
+        if (!user) {
+          reject({
+            statusCode: 404,
+            message: 'Usuário não encontrado',
+          });
+        } else {
+          const category = await this.findById(categoryId);
+          if (!category) {
+            reject({
+              statusCode: 404,
+              message: 'Categoria não encontrada',
+            });
+          } else {
+            const dataToUpdate = {
+              user: user,
+              deletedAt: new Date(),
+            };
+
+            const { affected } = await this.categoryRepository.update(
+              {
+                id: Equal(category.id),
+              },
+              dataToUpdate,
+            );
+
+            if (affected > 0) {
+              resolve({
+                statusCode: 200,
+                message: 'Dados excluídos com sucesso',
+              });
+            } else {
+              reject({
+                code: 400,
+                message:
+                  'Ocorreu um erro ao excluir os dados. Tente novamente!',
+              });
+            }
+          }
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }

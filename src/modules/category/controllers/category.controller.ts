@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -65,6 +66,35 @@ export class CategoryController {
     try {
       return await this.categoryService.update(data, +id, req);
     } catch (error) {
+      if (error.code === 400) {
+        throw new HttpException(error, HttpStatus.BAD_REQUEST);
+      }
+      if (error.code === 404) {
+        throw new HttpException(error, HttpStatus.NOT_FOUND);
+      }
+      if (error.code === 409) {
+        throw new HttpException(error, HttpStatus.CONFLICT);
+      }
+      throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TRUSTEE, UserRole.MANAGER)
+  @Delete('/delete/:id')
+  async delete(
+    @Param('id') id: number,
+    @Request() req: any,
+  ): Promise<DefaultResponseDto> {
+    try {
+      return await this.categoryService.delete(+id, req);
+    } catch (error) {
+      if (error.code === 400) {
+        throw new HttpException(error, HttpStatus.BAD_REQUEST);
+      }
+      if (error.code === 404) {
+        throw new HttpException(error, HttpStatus.NOT_FOUND);
+      }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
     }
   }
