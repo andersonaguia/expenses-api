@@ -5,6 +5,7 @@ import { CreateCategoryDto } from '../dto/create-category.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { UsersService } from 'src/modules/users/services/users.service';
 import { CategoryResponseDto } from '../dto/category-response.dto';
+import { UpdateCategoryDto } from '../dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
@@ -41,7 +42,7 @@ export class CategoryService {
           } else {
             const categoryToSave = new CategoryEntity();
             categoryToSave.name = newCategory.name.toUpperCase();
-            categoryToSave.createdBy = userExist;
+            categoryToSave.user = userExist;
             categoryToSave.createdAt = new Date();
             categoryToSave.updatedAt = null;
 
@@ -62,7 +63,20 @@ export class CategoryService {
     return new Promise(async (resolve, reject) => {
       try {
         const category = await this.categoryRepository.findOne({
-          where: { id: Equal(categoryId) },
+          where: { id: Equal(categoryId), deletedAt: IsNull() },
+        });
+        resolve(category);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async findByName(name: string): Promise<CategoryEntity> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const category = await this.categoryRepository.findOne({
+          where: { name: name, deletedAt: IsNull() },
         });
         resolve(category);
       } catch (error) {
@@ -75,8 +89,11 @@ export class CategoryService {
     return new Promise(async (resolve, reject) => {
       try {
         const categories = await this.categoryRepository.find({
+          where: {
+            deletedAt: IsNull(),
+          },
           relations: {
-            createdBy: true,
+            user: true,
           },
         });
         if (categories.length > 0) {
@@ -96,9 +113,71 @@ export class CategoryService {
       category.id = el.id;
       category.name = el.name;
       category.createdAt = el.createdAt;
-      category.createdBy = el.createdBy.name;
+      category.modifiedBy = el.user.name;
       return category;
     });
     return categoriesFormatted;
+  }
+
+  update(
+    data: UpdateCategoryDto,
+    categoryId: number,
+    req: any,
+  ): Promise<DefaultResponseDto> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const user = await this.usersService.findUserById(+req.user.id);
+        if (!user) {
+          reject({
+            statusCode: 404,
+            message: 'Usuário não encontrado',
+          });
+        } else {
+          const categoryNameExists = await this.findByName(data.name);
+          if (categoryNameExists) {
+            reject({
+              statusCode: 409,
+              message: 'Já existe uma categoria com esse nome',
+            });
+          } else {
+            const category = await this.findById(categoryId);
+            if (!category) {
+              reject({
+                statusCode: 404,
+                message: 'Categoria não encontrada',
+              });
+            } else {
+              const dataToUpdate = {
+                name: data.name.toUpperCase(),
+                user: user,
+                updatedAt: new Date(),
+              };
+
+              const { affected } = await this.categoryRepository.update(
+                {
+                  id: Equal(category.id),
+                },
+                dataToUpdate,
+              );
+
+              if (affected > 0) {
+                resolve({
+                  statusCode: 200,
+                  message: 'Dados atualizados com sucesso',
+                });
+              } else {
+                reject({
+                  code: 400,
+                  message:
+                    'Ocorreu um erro ao atualizar os dados. Tente novamente!',
+                });
+              }
+            }
+          }
+        }
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }

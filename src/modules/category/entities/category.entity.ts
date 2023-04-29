@@ -4,11 +4,11 @@ import { Column, Entity, ManyToOne } from 'typeorm';
 
 @Entity({ name: 'category' })
 export class CategoryEntity extends BaseEntity {
-  @Column({ length: 250 })
+  @Column({ length: 250, unique: true })
   name: string;
 
   @ManyToOne(() => UserEntity, (user) => user.id, {
     nullable: false,
   })
-  createdBy: UserEntity;
+  user: UserEntity;
 }
