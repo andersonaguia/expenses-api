@@ -37,7 +37,7 @@ export class ExpenseEntity extends BaseEntity {
   @Column({ type: 'float' })
   riviereMonthExpense: number;
 
-  @ManyToOne(() => UserEntity, (category) => category.id, {
+  @ManyToOne(() => UserEntity, (user) => user.id, {
     nullable: false,
   })
   modifiedBy: UserEntity;
