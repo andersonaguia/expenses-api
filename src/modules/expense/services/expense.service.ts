@@ -6,6 +6,7 @@ import { ExpenseEntity } from '../entities/expense.entity';
 import { CategoryService } from 'src/modules/category/services/category.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
+import { UpdateExpenseDto } from '../dto/update-expense.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -139,11 +140,9 @@ export class ExpenseService {
     });
   }
 
-  /*
-
   update(
-    data: UpdateCategoryDto,
-    categoryId: number,
+    data: UpdateExpenseDto,
+    expenseId: number,
     req: any,
   ): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
@@ -155,45 +154,38 @@ export class ExpenseService {
             message: 'Usuário não encontrado',
           });
         } else {
-          const categoryNameExists = await this.findByName(data.name);
-          if (categoryNameExists) {
+          const expense = await this.findById(expenseId);
+
+          if (!expense) {
             reject({
-              statusCode: 409,
-              message: 'Já existe uma categoria com esse nome',
+              statusCode: 404,
+              message: 'Despesa não encontrada',
             });
           } else {
-            const category = await this.findById(categoryId);
-            if (!category) {
-              reject({
-                statusCode: 404,
-                message: 'Categoria não encontrada',
+            const dataToUpdate = {
+              comments: data.comments,
+              modifiedBy: user,
+              updatedAt: new Date(),
+            };
+
+            const { affected } = await this.expenseRepository.update(
+              {
+                id: Equal(expense.id),
+              },
+              dataToUpdate,
+            );
+
+            if (affected > 0) {
+              resolve({
+                statusCode: 200,
+                message: 'Dados atualizados com sucesso',
               });
             } else {
-              const dataToUpdate = {
-                name: data.name.toUpperCase(),
-                user: user,
-                updatedAt: new Date(),
-              };
-
-              const { affected } = await this.categoryRepository.update(
-                {
-                  id: Equal(category.id),
-                },
-                dataToUpdate,
-              );
-
-              if (affected > 0) {
-                resolve({
-                  statusCode: 200,
-                  message: 'Dados atualizados com sucesso',
-                });
-              } else {
-                reject({
-                  code: 400,
-                  message:
-                    'Ocorreu um erro ao atualizar os dados. Tente novamente!',
-                });
-              }
+              reject({
+                code: 400,
+                message:
+                  'Ocorreu um erro ao atualizar os dados. Tente novamente!',
+              });
             }
           }
         }
@@ -203,7 +195,7 @@ export class ExpenseService {
     });
   }
 
-  delete(categoryId: number, req: any): Promise<DefaultResponseDto> {
+  delete(expenseId: number, req: any): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
       try {
         const user = await this.usersService.findUserById(+req.user.id);
@@ -213,21 +205,21 @@ export class ExpenseService {
             message: 'Usuário não encontrado',
           });
         } else {
-          const category = await this.findById(categoryId);
-          if (!category) {
+          const expense = await this.findById(expenseId);
+          if (!expense) {
             reject({
               statusCode: 404,
-              message: 'Categoria não encontrada',
+              message: 'Despesa não encontrada',
             });
           } else {
             const dataToUpdate = {
-              user: user,
+              modifiedBy: user,
               deletedAt: new Date(),
             };
 
-            const { affected } = await this.categoryRepository.update(
+            const { affected } = await this.expenseRepository.update(
               {
-                id: Equal(category.id),
+                id: Equal(expense.id),
               },
               dataToUpdate,
             );
@@ -251,5 +243,4 @@ export class ExpenseService {
       }
     });
   }
-  */
 }

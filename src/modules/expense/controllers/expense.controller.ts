@@ -18,7 +18,7 @@ import { Roles } from 'src/core/auth/guards/decorators/roles.decorator';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
-import { UpdateCategoryDto } from '../dto/update-expense.dto';
+import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { ExpenseService } from '../services/expense.service';
 
 @Controller('expense')
@@ -60,18 +60,17 @@ export class ExpenseController {
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
     }
   }
-  /*
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TRUSTEE, UserRole.MANAGER)
   @Patch('/update/:id')
   async update(
-    @Body() data: UpdateCategoryDto,
+    @Body() data: UpdateExpenseDto,
     @Param('id') id: number,
     @Request() req: any,
   ): Promise<DefaultResponseDto> {
     try {
-      return await this.categoryService.update(data, +id, req);
+      return await this.expenseService.update(data, +id, req);
     } catch (error) {
       if (error.code === 400) {
         throw new HttpException(error, HttpStatus.BAD_REQUEST);
@@ -86,6 +85,7 @@ export class ExpenseController {
     }
   }
 
+  /*
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TRUSTEE, UserRole.MANAGER)
   @Delete('/delete/:id')
