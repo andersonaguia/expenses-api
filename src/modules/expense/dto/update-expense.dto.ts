@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateCategoryDto {
-  @IsNotEmpty({ message: 'Obrigatório informar o nome' })
-  @IsString({ message: 'Nome deve ser uma string' })
-  readonly name: string;
+export class UpdateExpenseDto {
+  @IsNotEmpty({ message: 'Obrigatório informar o comentário' })
+  @IsString({ message: 'Comentário deve ser uma string' })
+  readonly comments: string;
 }

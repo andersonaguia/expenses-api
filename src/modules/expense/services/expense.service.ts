@@ -5,6 +5,8 @@ import { UsersService } from 'src/modules/users/services/users.service';
 import { ExpenseEntity } from '../entities/expense.entity';
 import { CategoryService } from 'src/modules/category/services/category.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
+import { ExpenseResponseDto } from '../dto/expense-response.dto';
+import { UpdateExpenseDto } from '../dto/update-expense.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -63,46 +65,21 @@ export class ExpenseService {
       }
     });
   }
-  /*
-  async findById(categoryId: number): Promise<CategoryEntity> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const category = await this.categoryRepository.findOne({
-          where: { id: Equal(categoryId), deletedAt: IsNull() },
-        });
-        resolve(category);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
 
-  async findByName(name: string): Promise<CategoryEntity> {
+  async findAll(): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        const category = await this.categoryRepository.findOne({
-          where: { name: name, deletedAt: IsNull() },
-        });
-        resolve(category);
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  async findAll(): Promise<CategoryResponseDto[]> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const categories = await this.categoryRepository.find({
+        const expenses = await this.expenseRepository.find({
           where: {
             deletedAt: IsNull(),
           },
           relations: {
-            user: true,
+            category: true,
+            modifiedBy: true,
           },
         });
-        if (categories.length > 0) {
-          resolve(this.formatCategories(categories));
+        if (expenses.length > 0) {
+          resolve(this.formatExpenses(expenses));
         } else {
           resolve([]);
         }
@@ -112,21 +89,60 @@ export class ExpenseService {
     });
   }
 
-  formatCategories(categories: CategoryEntity[]): CategoryResponseDto[] {
-    const categoriesFormatted = categories.map((el) => {
-      const category = new CategoryResponseDto();
-      category.id = el.id;
-      category.name = el.name;
-      category.createdAt = el.createdAt;
-      category.modifiedBy = el.user.name;
-      return category;
+  formatExpenses(expenses: ExpenseEntity[]): ExpenseResponseDto[] {
+    const expensesFormatted = expenses.map((el) => {
+      const expense = new ExpenseResponseDto();
+      expense.id = el.id;
+      expense.currentYear = el.currentYear;
+      expense.name = el.name;
+      expense.comments = el.comments;
+      expense.solarPercentage = el.solarPercentage;
+      expense.rivierePercentage = el.rivierePercentage;
+      expense.monthlyExpense = el.monthlyExpense;
+      expense.annualExpense = el.annualExpense;
+      expense.solarMonthExpense = el.solarMonthExpense;
+      expense.riviereMonthExpense = el.riviereMonthExpense;
+      expense.category = {
+        id: el.category.id,
+        name: el.category.name,
+      };
+      expense.createdAt = el.createdAt;
+      expense.modifiedBy = el.modifiedBy.name;
+
+      return expense;
     });
-    return categoriesFormatted;
+    return expensesFormatted;
+  }
+
+  async findById(expenseId: number): Promise<ExpenseEntity> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const expense = await this.expenseRepository.findOne({
+          where: { id: Equal(expenseId), deletedAt: IsNull() },
+        });
+        resolve(expense);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async findByName(name: string): Promise<ExpenseEntity> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const expense = await this.expenseRepository.findOne({
+          where: { name: name, deletedAt: IsNull() },
+        });
+        resolve(expense);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   update(
-    data: UpdateCategoryDto,
-    categoryId: number,
+    data: UpdateExpenseDto,
+    expenseId: number,
     req: any,
   ): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
@@ -138,45 +154,38 @@ export class ExpenseService {
             message: 'Usuário não encontrado',
           });
         } else {
-          const categoryNameExists = await this.findByName(data.name);
-          if (categoryNameExists) {
+          const expense = await this.findById(expenseId);
+
+          if (!expense) {
             reject({
-              statusCode: 409,
-              message: 'Já existe uma categoria com esse nome',
+              statusCode: 404,
+              message: 'Despesa não encontrada',
             });
           } else {
-            const category = await this.findById(categoryId);
-            if (!category) {
-              reject({
-                statusCode: 404,
-                message: 'Categoria não encontrada',
+            const dataToUpdate = {
+              comments: data.comments,
+              modifiedBy: user,
+              updatedAt: new Date(),
+            };
+
+            const { affected } = await this.expenseRepository.update(
+              {
+                id: Equal(expense.id),
+              },
+              dataToUpdate,
+            );
+
+            if (affected > 0) {
+              resolve({
+                statusCode: 200,
+                message: 'Dados atualizados com sucesso',
               });
             } else {
-              const dataToUpdate = {
-                name: data.name.toUpperCase(),
-                user: user,
-                updatedAt: new Date(),
-              };
-
-              const { affected } = await this.categoryRepository.update(
-                {
-                  id: Equal(category.id),
-                },
-                dataToUpdate,
-              );
-
-              if (affected > 0) {
-                resolve({
-                  statusCode: 200,
-                  message: 'Dados atualizados com sucesso',
-                });
-              } else {
-                reject({
-                  code: 400,
-                  message:
-                    'Ocorreu um erro ao atualizar os dados. Tente novamente!',
-                });
-              }
+              reject({
+                code: 400,
+                message:
+                  'Ocorreu um erro ao atualizar os dados. Tente novamente!',
+              });
             }
           }
         }
@@ -186,7 +195,7 @@ export class ExpenseService {
     });
   }
 
-  delete(categoryId: number, req: any): Promise<DefaultResponseDto> {
+  delete(expenseId: number, req: any): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
       try {
         const user = await this.usersService.findUserById(+req.user.id);
@@ -196,21 +205,21 @@ export class ExpenseService {
             message: 'Usuário não encontrado',
           });
         } else {
-          const category = await this.findById(categoryId);
-          if (!category) {
+          const expense = await this.findById(expenseId);
+          if (!expense) {
             reject({
               statusCode: 404,
-              message: 'Categoria não encontrada',
+              message: 'Despesa não encontrada',
             });
           } else {
             const dataToUpdate = {
-              user: user,
+              modifiedBy: user,
               deletedAt: new Date(),
             };
 
-            const { affected } = await this.categoryRepository.update(
+            const { affected } = await this.expenseRepository.update(
               {
-                id: Equal(category.id),
+                id: Equal(expense.id),
               },
               dataToUpdate,
             );
@@ -234,5 +243,4 @@ export class ExpenseService {
       }
     });
   }
-  */
 }
