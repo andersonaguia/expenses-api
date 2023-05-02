@@ -4,13 +4,13 @@ import { CategoryModule } from '../category/category.module';
 import { UsersModule } from '../users/users.module';
 import { ExpenseModule } from '../expense/expense.module';
 import { evolutionProviders } from './evolution.providers';
-import { ExpenseService } from '../expense/services/expense.service';
 import { EvolutionController } from './controllers/evolution.controller';
+import { EvolutionService } from './services/evolution.service';
 
 @Module({
   imports: [UsersModule, CategoryModule, ExpenseModule],
   controllers: [EvolutionController],
-  providers: [...databaseProviders, ...evolutionProviders, ExpenseService],
+  providers: [...databaseProviders, ...evolutionProviders, EvolutionService],
   exports: [],
 })
 export class EvolutionModule {}
