@@ -125,22 +125,21 @@ export class ExpenseService {
       }
     });
   }
-  
-  /*
-  async findByName(name: string): Promise<CategoryEntity> {
+
+  async findByName(name: string): Promise<ExpenseEntity> {
     return new Promise(async (resolve, reject) => {
       try {
-        const category = await this.categoryRepository.findOne({
+        const expense = await this.expenseRepository.findOne({
           where: { name: name, deletedAt: IsNull() },
         });
-        resolve(category);
+        resolve(expense);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  
+  /*
 
   update(
     data: UpdateCategoryDto,
