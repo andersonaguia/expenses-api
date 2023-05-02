@@ -27,6 +27,21 @@ export class UsersService {
     });
   }
 
+  async findUserById(userId: number): Promise<UserEntity> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const userExists = await this.userRepository.findOne({
+          where: {
+            id: userId,
+          },
+        });
+        resolve(userExists);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
   async createUser(user: CreateUserDto): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
       try {
