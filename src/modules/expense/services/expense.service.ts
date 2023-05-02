@@ -5,6 +5,7 @@ import { UsersService } from 'src/modules/users/services/users.service';
 import { ExpenseEntity } from '../entities/expense.entity';
 import { CategoryService } from 'src/modules/category/services/category.service';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
+import { ExpenseResponseDto } from '../dto/expense-response.dto';
 
 @Injectable()
 export class ExpenseService {
@@ -63,20 +64,69 @@ export class ExpenseService {
       }
     });
   }
-  /*
-  async findById(categoryId: number): Promise<CategoryEntity> {
+
+  async findAll(): Promise<any[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        const category = await this.categoryRepository.findOne({
-          where: { id: Equal(categoryId), deletedAt: IsNull() },
+        const expenses = await this.expenseRepository.find({
+          where: {
+            deletedAt: IsNull(),
+          },
+          relations: {
+            category: true,
+            modifiedBy: true,
+          },
         });
-        resolve(category);
+        if (expenses.length > 0) {
+          resolve(this.formatExpenses(expenses));
+        } else {
+          resolve([]);
+        }
       } catch (error) {
         reject(error);
       }
     });
   }
 
+  formatExpenses(expenses: ExpenseEntity[]): ExpenseResponseDto[] {
+    const expensesFormatted = expenses.map((el) => {
+      const expense = new ExpenseResponseDto();
+      expense.id = el.id;
+      expense.currentYear = el.currentYear;
+      expense.name = el.name;
+      expense.comments = el.comments;
+      expense.solarPercentage = el.solarPercentage;
+      expense.rivierePercentage = el.rivierePercentage;
+      expense.monthlyExpense = el.monthlyExpense;
+      expense.annualExpense = el.annualExpense;
+      expense.solarMonthExpense = el.solarMonthExpense;
+      expense.riviereMonthExpense = el.riviereMonthExpense;
+      expense.category = {
+        id: el.category.id,
+        name: el.category.name,
+      };
+      expense.createdAt = el.createdAt;
+      expense.modifiedBy = el.modifiedBy.name;
+
+      return expense;
+    });
+    return expensesFormatted;
+  }
+
+  async findById(expenseId: number): Promise<ExpenseEntity> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const expense = await this.expenseRepository.findOne({
+          where: { id: Equal(expenseId), deletedAt: IsNull() },
+        });
+        resolve(expense);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+  
+  /*
   async findByName(name: string): Promise<CategoryEntity> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -90,39 +140,7 @@ export class ExpenseService {
     });
   }
 
-  async findAll(): Promise<CategoryResponseDto[]> {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const categories = await this.categoryRepository.find({
-          where: {
-            deletedAt: IsNull(),
-          },
-          relations: {
-            user: true,
-          },
-        });
-        if (categories.length > 0) {
-          resolve(this.formatCategories(categories));
-        } else {
-          resolve([]);
-        }
-      } catch (error) {
-        reject(error);
-      }
-    });
-  }
-
-  formatCategories(categories: CategoryEntity[]): CategoryResponseDto[] {
-    const categoriesFormatted = categories.map((el) => {
-      const category = new CategoryResponseDto();
-      category.id = el.id;
-      category.name = el.name;
-      category.createdAt = el.createdAt;
-      category.modifiedBy = el.user.name;
-      return category;
-    });
-    return categoriesFormatted;
-  }
+  
 
   update(
     data: UpdateCategoryDto,

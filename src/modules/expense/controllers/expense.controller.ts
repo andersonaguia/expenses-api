@@ -17,7 +17,7 @@ import { UserRole } from 'src/modules/users/enum/user.role';
 import { Roles } from 'src/core/auth/guards/decorators/roles.decorator';
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
-import { CategoryResponseDto } from '../dto/expense-response.dto';
+import { ExpenseResponseDto } from '../dto/expense-response.dto';
 import { UpdateCategoryDto } from '../dto/update-expense.dto';
 import { ExpenseService } from '../services/expense.service';
 
@@ -50,16 +50,17 @@ export class ExpenseController {
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
     }
   }
-  /*
+
   @UseGuards(JwtAuthGuard)
   @Get('/findall')
-  async findAll(): Promise<CategoryResponseDto[]> {
+  async findAll(): Promise<ExpenseResponseDto[]> {
     try {
-      return await this.categoryService.findAll();
+      return await this.expenseService.findAll();
     } catch (error) {
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
     }
   }
+  /*
 
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TRUSTEE, UserRole.MANAGER)
