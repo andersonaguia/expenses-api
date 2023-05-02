@@ -85,7 +85,6 @@ export class ExpenseController {
     }
   }
 
-  /*
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TRUSTEE, UserRole.MANAGER)
   @Delete('/delete/:id')
@@ -94,7 +93,7 @@ export class ExpenseController {
     @Request() req: any,
   ): Promise<DefaultResponseDto> {
     try {
-      return await this.categoryService.delete(+id, req);
+      return await this.expenseService.delete(+id, req);
     } catch (error) {
       if (error.code === 400) {
         throw new HttpException(error, HttpStatus.BAD_REQUEST);
@@ -105,5 +104,4 @@ export class ExpenseController {
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
     }
   }
-  */
 }
