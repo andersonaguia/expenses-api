@@ -16,7 +16,7 @@ export class ExpenseEntity extends BaseEntity {
   })
   category: CategoryEntity;
 
-  @Column({ length: 250, unique: true })
+  @Column({ length: 250 })
   comments: string;
 
   @Column({ nullable: false })
