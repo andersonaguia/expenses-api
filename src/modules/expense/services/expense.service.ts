@@ -56,7 +56,7 @@ export class ExpenseService {
             await this.expenseRepository.save(expense);
             resolve({
               statusCode: 201,
-              message: 'Despensa criada com sucesso',
+              message: 'Despesa criada com sucesso',
             });
           }
         }
