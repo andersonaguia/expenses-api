@@ -10,5 +10,5 @@ export class CategoryEntity extends BaseEntity {
   @ManyToOne(() => UserEntity, (user) => user.id, {
     nullable: false,
   })
-  user: UserEntity;
+  modifiedBy: UserEntity;
 }

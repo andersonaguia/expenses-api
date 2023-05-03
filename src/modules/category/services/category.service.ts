@@ -42,7 +42,7 @@ export class CategoryService {
           } else {
             const categoryToSave = new CategoryEntity();
             categoryToSave.name = newCategory.name.toUpperCase();
-            categoryToSave.user = userExist;
+            categoryToSave.modifiedBy = userExist;
             categoryToSave.createdAt = new Date();
             categoryToSave.updatedAt = null;
 
@@ -54,6 +54,7 @@ export class CategoryService {
           }
         }
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });
@@ -93,7 +94,7 @@ export class CategoryService {
             deletedAt: IsNull(),
           },
           relations: {
-            user: true,
+            modifiedBy: true,
           },
         });
         if (categories.length > 0) {
@@ -113,7 +114,7 @@ export class CategoryService {
       category.id = el.id;
       category.name = el.name;
       category.createdAt = el.createdAt;
-      category.modifiedBy = el.user.name;
+      category.modifiedBy = el.modifiedBy.name;
       return category;
     });
     return categoriesFormatted;
