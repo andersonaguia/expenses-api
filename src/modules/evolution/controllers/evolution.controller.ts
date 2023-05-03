@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -28,6 +30,32 @@ export class EvolutionController {
   ): Promise<DefaultResponseDto> {
     try {
       return await this.evolutionService.create(evolution, req);
+    } catch (error) {
+      if (error.code === 404) {
+        throw new HttpException(error, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/findall')
+  async findAll(): Promise<any[]> {
+    try {
+      return await this.evolutionService.findAll();
+    } catch (error) {
+      if (error.code === 404) {
+        throw new HttpException(error, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/find/:id')
+  async findByCategory(@Param('id') categoryId: number): Promise<any[]> {
+    try {
+      return await this.evolutionService.findByCategory(+categoryId);
     } catch (error) {
       if (error.code === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { Equal, IsNull, Repository } from 'typeorm';
 import { EvolutionEntity } from '../entities/evolution.entity';
 import { UsersService } from 'src/modules/users/services/users.service';
 import { ExpenseService } from 'src/modules/expense/services/expense.service';
@@ -58,5 +58,44 @@ export class EvolutionService {
     });
   }
 
-  
+  async findAll(): Promise<any[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const evolutions = await this.evolutionRepository.find({
+          where: {
+            deletedAt: IsNull(),
+          },
+          relations: {
+            expense: { category: true },
+            modifiedBy: true,
+          },
+        });
+        if (evolutions) {
+          resolve(evolutions);
+        }
+        resolve([]);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async findByCategory(categoryId: number): Promise<any[]> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const evolutions = await this.evolutionRepository.find({
+          where: {
+            expense: { category: { id: Equal(+categoryId) } },
+            deletedAt: IsNull(),
+          },
+        });
+        if (evolutions) {
+          resolve(evolutions);
+        }
+        resolve([]);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
 }
