@@ -7,6 +7,12 @@ export class CategoryEntity extends BaseEntity {
   @Column({ length: 250, unique: true })
   name: string;
 
+  @Column({ type: 'float' })
+  monthlyCost: number;
+
+  @Column({ type: 'float' })
+  annualCost: number;
+
   @ManyToOne(() => UserEntity, (user) => user.id, {
     nullable: false,
   })

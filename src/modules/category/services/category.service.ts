@@ -42,6 +42,8 @@ export class CategoryService {
           } else {
             const categoryToSave = new CategoryEntity();
             categoryToSave.name = newCategory.name.toUpperCase();
+            categoryToSave.monthlyCost = newCategory.monthlyCost;
+            categoryToSave.annualCost = newCategory.annualCost;
             categoryToSave.modifiedBy = userExist;
             categoryToSave.createdAt = new Date();
             categoryToSave.updatedAt = null;
@@ -113,6 +115,8 @@ export class CategoryService {
       const category = new CategoryResponseDto();
       category.id = el.id;
       category.name = el.name;
+      category.monthlyCost = el.monthlyCost;
+      category.annualCost = el.annualCost;
       category.createdAt = el.createdAt;
       category.modifiedBy = el.modifiedBy.name;
       return category;
@@ -134,11 +138,17 @@ export class CategoryService {
             message: 'Usuário não encontrado',
           });
         } else {
-          const categoryNameExists = await this.findByName(data.name);
+          let categoryNameExists: CategoryEntity = null;
+          if (data.name) {
+            data.name = data.name.toUpperCase();
+            categoryNameExists = await this.findByName(data.name);
+          } else {
+            delete data.name;
+          }
           if (categoryNameExists) {
             reject({
               statusCode: 409,
-              message: 'Já existe uma categoria com esse nome',
+              message: 'Já existe uma categoria com o mesmo nome',
             });
           } else {
             const category = await this.findById(categoryId);
@@ -148,17 +158,13 @@ export class CategoryService {
                 message: 'Categoria não encontrada',
               });
             } else {
-              const dataToUpdate = {
-                name: data.name.toUpperCase(),
-                user: user,
-                updatedAt: new Date(),
-              };
-
+              data.modifiedBy = user;
+              data.updatedAt = new Date();
               const { affected } = await this.categoryRepository.update(
                 {
                   id: Equal(category.id),
                 },
-                dataToUpdate,
+                data,
               );
 
               if (affected > 0) {
@@ -200,7 +206,7 @@ export class CategoryService {
             });
           } else {
             const dataToUpdate = {
-              user: user,
+              modifiedBy: user,
               deletedAt: new Date(),
             };
 
