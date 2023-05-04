@@ -40,6 +40,7 @@ export class EvolutionService {
           } else {
             const evolution = new EvolutionEntity();
             evolution.expense = expense;
+            evolution.lastPayment = newEvolution.lastPayment;
             evolution.currentMonthlyCash = newEvolution.currentMonthlyCash;
             evolution.currentAnnualCash = newEvolution.currentAnnualCash;
             evolution.createdAt = new Date();
@@ -67,7 +68,7 @@ export class EvolutionService {
             deletedAt: IsNull(),
           },
           relations: {
-            expense: { category: true },
+            expense: { category: true, subcategory: true },
             modifiedBy: true,
           },
         });
@@ -89,6 +90,7 @@ export class EvolutionService {
       evolution.id = el.id;
 
       evolution.createdAt = el.createdAt;
+      evolution.lastPayment = el.lastPayment;
       evolution.currentAnnualCash = el.currentAnnualCash;
       evolution.currentMonthlyCash = el.currentMonthlyCash;
 
@@ -100,6 +102,12 @@ export class EvolutionService {
           id: el.expense.category.id,
           name: el.expense.category.name,
         },
+        subcategory: el.expense.subcategory
+          ? {
+              id: el.expense.subcategory.id,
+              name: el.expense.subcategory.name,
+            }
+          : null,
       };
       evolution.modifiedBy = {
         id: el.modifiedBy.id,
@@ -120,7 +128,7 @@ export class EvolutionService {
             deletedAt: IsNull(),
           },
           relations: {
-            expense: { category: true },
+            expense: { category: true, subcategory: true },
             modifiedBy: true,
           },
         });

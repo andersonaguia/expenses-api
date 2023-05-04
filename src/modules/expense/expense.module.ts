@@ -5,9 +5,10 @@ import { expenseProviders } from './expense.providers';
 import { ExpenseController } from './controllers/expense.controller';
 import { ExpenseService } from './services/expense.service';
 import { CategoryModule } from '../category/category.module';
+import { SubcategoryModule } from '../subcategory/subcategory.module';
 
 @Module({
-  imports: [UsersModule, CategoryModule],
+  imports: [UsersModule, CategoryModule, SubcategoryModule],
   controllers: [ExpenseController],
   providers: [...databaseProviders, ...expenseProviders, ExpenseService],
   exports: [ExpenseService],

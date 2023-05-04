@@ -1,6 +1,7 @@
 export class ResponseEvolutionDto {
   id: number;
   createdAt: Date;
+  lastPayment: number;
   currentMonthlyCash: number;
   currentAnnualCash: number;
   expense: {
@@ -9,6 +10,10 @@ export class ResponseEvolutionDto {
     name: string;
 
     category: {
+      id: number;
+      name: string;
+    };
+    subcategory: {
       id: number;
       name: string;
     };

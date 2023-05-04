@@ -7,6 +7,7 @@ import { CategoryService } from 'src/modules/category/services/category.service'
 import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
+import { SubcategoryService } from 'src/modules/subcategory/services/subcategory.service';
 
 @Injectable()
 export class ExpenseService {
@@ -15,6 +16,7 @@ export class ExpenseService {
     private readonly expenseRepository: Repository<ExpenseEntity>,
     private readonly usersService: UsersService,
     private readonly categoryService: CategoryService,
+    private readonly subcategoryService: SubcategoryService,
   ) {}
 
   async create(
@@ -31,25 +33,30 @@ export class ExpenseService {
           });
         } else {
           const category = await this.categoryService.findById(
-            +newExpense.category,
+            +newExpense.categoryId,
           );
           if (!category) {
             reject({
               statusCode: 404,
-              message: 'Caterogia não foi encontrada',
+              message: 'Categoria não foi encontrada',
             });
           } else {
+            const subcategory = await this.subcategoryService.findById(
+              +newExpense.subcategoryId,
+            );
             const expense = new ExpenseEntity();
             expense.currentYear = newExpense.currentYear;
             expense.name = newExpense.name;
             expense.category = category;
+            expense.subcategory = subcategory;
             expense.comments = newExpense.comments;
-            expense.solarPercentage = newExpense.solarPercentage;
-            expense.rivierePercentage = newExpense.rivierePercentage;
+            expense.residentialPercentage = newExpense.residentialPercentage;
+            expense.commercialPercentage = newExpense.commercialPercentage;
             expense.monthlyExpense = newExpense.monthlyExpense;
             expense.annualExpense = newExpense.annualExpense;
-            expense.solarMonthExpense = newExpense.solarMonthExpense;
-            expense.riviereMonthExpense = newExpense.riviereMonthExpense;
+            expense.residentialMonthExpense =
+              newExpense.residentialMonthExpense;
+            expense.commercialMonthExpense = newExpense.commercialMonthExpense;
             expense.createdAt = new Date();
             expense.modifiedBy = user;
 
@@ -75,6 +82,7 @@ export class ExpenseService {
           },
           relations: {
             category: true,
+            subcategory: true,
             modifiedBy: true,
           },
         });
@@ -84,6 +92,7 @@ export class ExpenseService {
           resolve([]);
         }
       } catch (error) {
+        console.log(error);
         reject(error);
       }
     });
@@ -96,16 +105,26 @@ export class ExpenseService {
       expense.currentYear = el.currentYear;
       expense.name = el.name;
       expense.comments = el.comments;
-      expense.solarPercentage = el.solarPercentage;
-      expense.rivierePercentage = el.rivierePercentage;
+      expense.residentialPercentage = el.residentialPercentage;
+      expense.commercialPercentage = el.commercialPercentage;
       expense.monthlyExpense = el.monthlyExpense;
       expense.annualExpense = el.annualExpense;
-      expense.solarMonthExpense = el.solarMonthExpense;
-      expense.riviereMonthExpense = el.riviereMonthExpense;
+      expense.residentialMonthExpense = el.residentialMonthExpense;
+      expense.commercialMonthExpense = el.commercialMonthExpense;
       expense.category = {
         id: el.category.id,
         name: el.category.name,
       };
+
+      if (el.subcategory) {
+        expense.subcategory = {
+          id: el.subcategory.id,
+          name: el.subcategory.name,
+        };
+      } else {
+        expense.subcategory = null;
+      }
+
       expense.createdAt = el.createdAt;
       expense.modifiedBy = el.modifiedBy.name;
 
