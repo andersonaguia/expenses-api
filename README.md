@@ -664,11 +664,11 @@ Headers: {
 
 <div align="center">
 <h2>Anderson Aguiar</h2>
-<a href="https://www.linkedin.com/in/andersonlaguiar/" target="blank">
+<a href="https://www.linkedin.com/in/andersonlaguiar/" target="_blank">
 <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="logo Linkedin" />
 </a>
-<button onclick="copyToClipboard()"><img title="andersonlaguiar@gmail.com" id="tooltip" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="logo Gmail" /></button>
-<a href="https://www.instagram.com/anders.aguiar/?igshid=ZDdkNTZiNTM%3D" target="blank">
+<img title="andersonlaguiar@gmail.com" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="logo Gmail" />
+<a href="https://www.instagram.com/anders.aguiar/?igshid=ZDdkNTZiNTM%3D" target="_blank">
 <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="logo Instagram" />
 </a>
 </div>
