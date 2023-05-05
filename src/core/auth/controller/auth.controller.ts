@@ -35,8 +35,8 @@ export class authController {
     }
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  /*@UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)*/
   @Post('/signup')
   async signUp(
     @Body() user: CreateUserDto,
