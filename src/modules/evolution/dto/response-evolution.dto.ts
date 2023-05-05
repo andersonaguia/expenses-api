@@ -8,7 +8,8 @@ export class ResponseEvolutionDto {
     id: number;
     currentYear: number;
     name: string;
-
+    monthlyExpense: number;
+    annualExpense: number;
     category: {
       id: number;
       name: string;

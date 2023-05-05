@@ -98,6 +98,8 @@ export class EvolutionService {
         id: el.expense.id,
         currentYear: el.expense.currentYear,
         name: el.expense.name,
+        monthlyExpense: el.expense.monthlyExpense,
+        annualExpense: el.expense.annualExpense,
         category: {
           id: el.expense.category.id,
           name: el.expense.category.name,
