@@ -5,6 +5,7 @@ import { UsersService } from 'src/modules/users/services/users.service';
 import { ExpenseService } from 'src/modules/expense/services/expense.service';
 import { CreateEvolutionDto } from '../dto/create-evolution.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
+import { ResponseEvolutionDto } from '../dto/response-evolution.dto';
 
 @Injectable()
 export class EvolutionService {
@@ -39,6 +40,7 @@ export class EvolutionService {
           } else {
             const evolution = new EvolutionEntity();
             evolution.expense = expense;
+            evolution.lastPayment = newEvolution.lastPayment;
             evolution.currentMonthlyCash = newEvolution.currentMonthlyCash;
             evolution.currentAnnualCash = newEvolution.currentAnnualCash;
             evolution.createdAt = new Date();
@@ -58,7 +60,7 @@ export class EvolutionService {
     });
   }
 
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<ResponseEvolutionDto[]> {
     return new Promise(async (resolve, reject) => {
       try {
         const evolutions = await this.evolutionRepository.find({
@@ -66,18 +68,57 @@ export class EvolutionService {
             deletedAt: IsNull(),
           },
           relations: {
-            expense: { category: true },
+            expense: { category: true, subcategory: true },
             modifiedBy: true,
           },
         });
         if (evolutions) {
-          resolve(evolutions);
+          resolve(this.responseFormatted(evolutions));
         }
         resolve([]);
       } catch (error) {
         reject(error);
       }
     });
+  }
+
+  responseFormatted(
+    evolutionsArray: EvolutionEntity[],
+  ): ResponseEvolutionDto[] {
+    const evolutions = evolutionsArray.map((el) => {
+      const evolution = new ResponseEvolutionDto();
+      evolution.id = el.id;
+
+      evolution.createdAt = el.createdAt;
+      evolution.lastPayment = el.lastPayment;
+      evolution.currentAnnualCash = el.currentAnnualCash;
+      evolution.currentMonthlyCash = el.currentMonthlyCash;
+
+      evolution.expense = {
+        id: el.expense.id,
+        currentYear: el.expense.currentYear,
+        name: el.expense.name,
+        monthlyExpense: el.expense.monthlyExpense,
+        annualExpense: el.expense.annualExpense,
+        category: {
+          id: el.expense.category.id,
+          name: el.expense.category.name,
+        },
+        subcategory: el.expense.subcategory
+          ? {
+              id: el.expense.subcategory.id,
+              name: el.expense.subcategory.name,
+            }
+          : null,
+      };
+      evolution.modifiedBy = {
+        id: el.modifiedBy.id,
+        name: el.modifiedBy.name,
+      };
+
+      return evolution;
+    });
+    return evolutions;
   }
 
   async findByCategory(categoryId: number): Promise<any[]> {
@@ -88,9 +129,13 @@ export class EvolutionService {
             expense: { category: { id: Equal(+categoryId) } },
             deletedAt: IsNull(),
           },
+          relations: {
+            expense: { category: true, subcategory: true },
+            modifiedBy: true,
+          },
         });
         if (evolutions) {
-          resolve(evolutions);
+          resolve(this.responseFormatted(evolutions));
         }
         resolve([]);
       } catch (error) {

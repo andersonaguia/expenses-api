@@ -16,6 +16,7 @@ import { Roles } from 'src/core/auth/guards/decorators/roles.decorator';
 import { CreateEvolutionDto } from '../dto/create-evolution.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { RolesGuard } from 'src/core/auth/guards/roles/roles.guard';
+import { ResponseEvolutionDto } from '../dto/response-evolution.dto';
 
 @Controller('evolution')
 export class EvolutionController {
@@ -40,7 +41,7 @@ export class EvolutionController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/findall')
-  async findAll(): Promise<any[]> {
+  async findAll(): Promise<ResponseEvolutionDto[]> {
     try {
       return await this.evolutionService.findAll();
     } catch (error) {

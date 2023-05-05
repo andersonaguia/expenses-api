@@ -10,10 +10,13 @@ export class EvolutionEntity extends BaseEntity {
   })
   expense: ExpenseEntity;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', precision: 8, scale: 2 })
+  lastPayment: number;
+
+  @Column({ type: 'float', precision: 8, scale: 2 })
   currentMonthlyCash: number;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', precision: 8, scale: 2 })
   currentAnnualCash: number;
 
   @ManyToOne(() => UserEntity, (user) => user.id, {
