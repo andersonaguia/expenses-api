@@ -1,22 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Equal, IsNull, Repository } from 'typeorm';
-import { CategoryEntity } from '../entities/category.entity';
-import { CreateCategoryDto } from '../dto/create-category.dto';
+import { SubcategoryEntity } from '../entities/subcategory.entity';
+import { CreateSubcategoryDto } from '../dto/create-subcategory.dto';
 import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { UsersService } from 'src/modules/users/services/users.service';
-import { CategoryResponseDto } from '../dto/category-response.dto';
-import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { SubcategoryResponseDto } from '../dto/subcategory-response.dto';
+import { UpdateSubcategoryDto } from '../dto/update-subcategory.dto';
 
 @Injectable()
-export class CategoryService {
+export class SubcategoryService {
   constructor(
-    @Inject('CATEGORY_REPOSITORY')
-    private readonly categoryRepository: Repository<CategoryEntity>,
+    @Inject('SUBCATEGORY_REPOSITORY')
+    private readonly subcategoryRepository: Repository<SubcategoryEntity>,
     private readonly usersService: UsersService,
   ) {}
 
   async create(
-    newCategory: CreateCategoryDto,
+    newCategory: CreateSubcategoryDto,
     req: any,
   ): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
@@ -28,70 +28,67 @@ export class CategoryService {
             message: 'Usuário não foi encontrado',
           });
         } else {
-          const categoryExists = await this.categoryRepository.findOne({
+          const subcategoryExists = await this.subcategoryRepository.findOne({
             where: {
               name: newCategory.name.toUpperCase(),
               deletedAt: IsNull(),
             },
           });
-          if (categoryExists) {
+          if (subcategoryExists) {
             reject({
               statusCode: 409,
-              message: 'Já existe uma categoria cadastrada com o mesmo nome',
+              message: 'Já existe uma subcategoria cadastrada com o mesmo nome',
             });
           } else {
-            const categoryToSave = new CategoryEntity();
-            categoryToSave.name = newCategory.name.toUpperCase();
-            categoryToSave.monthlyCost = newCategory.monthlyCost;
-            categoryToSave.annualCost = newCategory.annualCost;
-            categoryToSave.modifiedBy = userExist;
-            categoryToSave.createdAt = new Date();
-            categoryToSave.updatedAt = null;
+            const subcategoryToSave = new SubcategoryEntity();
+            subcategoryToSave.name = newCategory.name.toUpperCase();
+            subcategoryToSave.modifiedBy = userExist;
+            subcategoryToSave.createdAt = new Date();
+            subcategoryToSave.updatedAt = null;
 
-            await this.categoryRepository.save(categoryToSave);
+            await this.subcategoryRepository.save(subcategoryToSave);
             resolve({
               statusCode: 201,
-              message: 'Categoria criada com sucesso',
+              message: 'Subcategoria criada com sucesso',
             });
           }
         }
       } catch (error) {
-        console.log(error);
         reject(error);
       }
     });
   }
 
-  async findById(categoryId: number): Promise<CategoryEntity> {
+  async findById(subcategoryId: number): Promise<SubcategoryEntity> {
     return new Promise(async (resolve, reject) => {
       try {
-        const category = await this.categoryRepository.findOne({
-          where: { id: Equal(categoryId), deletedAt: IsNull() },
+        const subcategory = await this.subcategoryRepository.findOne({
+          where: { id: Equal(subcategoryId), deletedAt: IsNull() },
         });
-        resolve(category);
+        resolve(subcategory);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  async findByName(name: string): Promise<CategoryEntity> {
+  async findByName(name: string): Promise<SubcategoryEntity> {
     return new Promise(async (resolve, reject) => {
       try {
-        const category = await this.categoryRepository.findOne({
+        const subcategory = await this.subcategoryRepository.findOne({
           where: { name: name, deletedAt: IsNull() },
         });
-        resolve(category);
+        resolve(subcategory);
       } catch (error) {
         reject(error);
       }
     });
   }
 
-  async findAll(): Promise<CategoryResponseDto[]> {
+  async findAll(): Promise<SubcategoryResponseDto[]> {
     return new Promise(async (resolve, reject) => {
       try {
-        const categories = await this.categoryRepository.find({
+        const subcategories = await this.subcategoryRepository.find({
           where: {
             deletedAt: IsNull(),
           },
@@ -99,8 +96,8 @@ export class CategoryService {
             modifiedBy: true,
           },
         });
-        if (categories.length > 0) {
-          resolve(this.formatCategories(categories));
+        if (subcategories.length > 0) {
+          resolve(this.formatSubcategories(subcategories));
         } else {
           resolve([]);
         }
@@ -110,25 +107,26 @@ export class CategoryService {
     });
   }
 
-  formatCategories(categories: CategoryEntity[]): CategoryResponseDto[] {
-    const categoriesFormatted = categories.map((el) => {
-      const category = new CategoryResponseDto();
-      category.id = el.id;
-      category.name = el.name;
-      category.monthlyCost = el.monthlyCost;
-      category.annualCost = el.annualCost;
-      category.createdAt = el.createdAt;
-      category.modifiedBy = el.modifiedBy.name;
-      return category;
+  formatSubcategories(
+    subccategories: SubcategoryEntity[],
+  ): SubcategoryResponseDto[] {
+    const subcategoriesFormatted = subccategories.map((el) => {
+      const subcategory = new SubcategoryResponseDto();
+      subcategory.id = el.id;
+      subcategory.name = el.name;
+      subcategory.createdAt = el.createdAt;
+      subcategory.modifiedBy = el.modifiedBy.name;
+      return subcategory;
     });
-    return categoriesFormatted;
+    return subcategoriesFormatted;
   }
 
   update(
-    data: UpdateCategoryDto,
-    categoryId: number,
+    data: UpdateSubcategoryDto,
+    subcategoryId: number,
     req: any,
   ): Promise<DefaultResponseDto> {
+    data.name = data.name.toUpperCase();
     return new Promise(async (resolve, reject) => {
       try {
         const user = await this.usersService.findUserById(+req.user.id);
@@ -138,35 +136,31 @@ export class CategoryService {
             message: 'Usuário não encontrado',
           });
         } else {
-          let categoryNameExists: CategoryEntity = null;
-          if (data.name) {
-            data.name = data.name.toUpperCase();
-            categoryNameExists = await this.findByName(data.name);
-          } else {
-            delete data.name;
-          }
-          if (categoryNameExists) {
+          let subcategoryNameExists: SubcategoryEntity = null;
+
+          subcategoryNameExists = await this.findByName(data.name);
+
+          if (subcategoryNameExists) {
             reject({
               statusCode: 409,
-              message: 'Já existe uma categoria com o mesmo nome',
+              message: 'Já existe uma subcategoria com o mesmo nome',
             });
           } else {
-            const category = await this.findById(categoryId);
-            if (!category) {
+            const subcategory = await this.findById(subcategoryId);
+            if (!subcategory) {
               reject({
                 statusCode: 404,
-                message: 'Categoria não encontrada',
+                message: 'Subcategoria não encontrada',
               });
             } else {
               data.modifiedBy = user;
               data.updatedAt = new Date();
-              const { affected } = await this.categoryRepository.update(
+              const { affected } = await this.subcategoryRepository.update(
                 {
-                  id: Equal(category.id),
+                  id: Equal(subcategory.id),
                 },
                 data,
               );
-
               if (affected > 0) {
                 resolve({
                   statusCode: 200,
@@ -188,7 +182,7 @@ export class CategoryService {
     });
   }
 
-  delete(categoryId: number, req: any): Promise<DefaultResponseDto> {
+  delete(subcategoryId: number, req: any): Promise<DefaultResponseDto> {
     return new Promise(async (resolve, reject) => {
       try {
         const user = await this.usersService.findUserById(+req.user.id);
@@ -198,11 +192,11 @@ export class CategoryService {
             message: 'Usuário não encontrado',
           });
         } else {
-          const category = await this.findById(categoryId);
-          if (!category) {
+          const subcategory = await this.findById(subcategoryId);
+          if (!subcategory) {
             reject({
               statusCode: 404,
-              message: 'Categoria não encontrada',
+              message: 'Subcategoria não encontrada',
             });
           } else {
             const dataToUpdate = {
@@ -210,9 +204,9 @@ export class CategoryService {
               deletedAt: new Date(),
             };
 
-            const { affected } = await this.categoryRepository.update(
+            const { affected } = await this.subcategoryRepository.update(
               {
-                id: Equal(category.id),
+                id: Equal(subcategory.id),
               },
               dataToUpdate,
             );

@@ -1,5 +1,6 @@
 import { BaseEntity } from 'src/core/entities/base.entity';
 import { CategoryEntity } from 'src/modules/category/entities/category.entity';
+import { SubcategoryEntity } from 'src/modules/subcategory/entities/subcategory.entity';
 import { UserEntity } from 'src/modules/users/entities/user.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
 
@@ -16,28 +17,33 @@ export class ExpenseEntity extends BaseEntity {
   })
   category: CategoryEntity;
 
+  @ManyToOne(() => SubcategoryEntity, (subcategory) => subcategory.id, {
+    nullable: true,
+  })
+  subcategory: SubcategoryEntity;
+
   @Column({ length: 250 })
   comments: string;
 
   @Column({ nullable: false })
-  solarPercentage: number;
+  residentialPercentage: number;
 
   @Column({ nullable: false })
-  rivierePercentage: number;
+  commercialPercentage: number;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', precision: 8, scale: 2 })
   monthlyExpense: number;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', precision: 8, scale: 2 })
   annualExpense: number;
 
-  @Column({ type: 'float' })
-  solarMonthExpense: number;
+  @Column({ type: 'float', precision: 8, scale: 2 })
+  residentialMonthExpense: number;
 
-  @Column({ type: 'float' })
-  riviereMonthExpense: number;
+  @Column({ type: 'float', precision: 8, scale: 2 })
+  commercialMonthExpense: number;
 
-  @ManyToOne(() => UserEntity, (category) => category.id, {
+  @ManyToOne(() => UserEntity, (user) => user.id, {
     nullable: false,
   })
   modifiedBy: UserEntity;

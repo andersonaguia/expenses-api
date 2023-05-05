@@ -3,13 +3,17 @@ export class ExpenseResponseDto {
   currentYear: number;
   name: string;
   comments: string;
-  solarPercentage: number;
-  rivierePercentage: number;
+  residentialPercentage: number;
+  commercialPercentage: number;
   monthlyExpense: number;
   annualExpense: number;
-  solarMonthExpense: number;
-  riviereMonthExpense: number;
+  residentialMonthExpense: number;
+  commercialMonthExpense: number;
   category: {
+    id: number;
+    name: string;
+  };
+  subcategory: {
     id: number;
     name: string;
   };
