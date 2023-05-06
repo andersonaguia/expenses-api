@@ -8,12 +8,15 @@ import { CreateExpenseDto } from '../dto/create-expense.dto';
 import { ExpenseResponseDto } from '../dto/expense-response.dto';
 import { UpdateExpenseDto } from '../dto/update-expense.dto';
 import { SubcategoryService } from 'src/modules/subcategory/services/subcategory.service';
+import { EvolutionEntity } from 'src/modules/evolution/entities/evolution.entity';
 
 @Injectable()
 export class ExpenseService {
   constructor(
     @Inject('EXPENSE_REPOSITORY')
     private readonly expenseRepository: Repository<ExpenseEntity>,
+    @Inject('EVOLUTION_REPOSITORY')
+    private readonly evolutionRepository: Repository<EvolutionEntity>,
     private readonly usersService: UsersService,
     private readonly categoryService: CategoryService,
     private readonly subcategoryService: SubcategoryService,
@@ -231,29 +234,35 @@ export class ExpenseService {
               message: 'Despesa não encontrada',
             });
           } else {
-            const dataToUpdate = {
-              modifiedBy: user,
-              deletedAt: new Date(),
-            };
-
-            const { affected } = await this.expenseRepository.update(
-              {
-                id: Equal(expense.id),
+            const expenseWasPosted = await this.evolutionRepository.findOne({
+              where: {
+                expense: { id: Equal(expense.id) },
+                deletedAt: IsNull(),
               },
-              dataToUpdate,
-            );
-
-            if (affected > 0) {
-              resolve({
-                statusCode: 200,
-                message: 'Dados excluídos com sucesso',
+            });
+            if (expenseWasPosted) {
+              reject({
+                statusCode: 403,
+                message:
+                  'Impossível excluir pois já existem lançamentos efetuados para esta despesa.',
               });
             } else {
-              reject({
-                code: 400,
-                message:
-                  'Ocorreu um erro ao excluir os dados. Tente novamente!',
+              const { affected } = await this.expenseRepository.delete({
+                id: Equal(expense.id),
               });
+
+              if (affected > 0) {
+                resolve({
+                  statusCode: 200,
+                  message: 'Dados excluídos com sucesso',
+                });
+              } else {
+                reject({
+                  code: 400,
+                  message:
+                    'Ocorreu um erro ao excluir os dados. Tente novamente!',
+                });
+              }
             }
           }
         }

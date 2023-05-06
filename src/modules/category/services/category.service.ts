@@ -6,12 +6,15 @@ import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { UsersService } from 'src/modules/users/services/users.service';
 import { CategoryResponseDto } from '../dto/category-response.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
+import { ExpenseEntity } from 'src/modules/expense/entities/expense.entity';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @Inject('CATEGORY_REPOSITORY')
     private readonly categoryRepository: Repository<CategoryEntity>,
+    @Inject('EXPENSE_REPOSITORY')
+    private readonly expenseRepository: Repository<ExpenseEntity>,
     private readonly usersService: UsersService,
   ) {}
 
@@ -205,29 +208,35 @@ export class CategoryService {
               message: 'Categoria não encontrada',
             });
           } else {
-            const dataToUpdate = {
-              modifiedBy: user,
-              deletedAt: new Date(),
-            };
-
-            const { affected } = await this.categoryRepository.update(
-              {
-                id: Equal(category.id),
+            const categoryWasPosted = await this.expenseRepository.findOne({
+              where: {
+                category: { id: Equal(category.id) },
+                deletedAt: IsNull(),
               },
-              dataToUpdate,
-            );
-
-            if (affected > 0) {
-              resolve({
-                statusCode: 200,
-                message: 'Dados excluídos com sucesso',
+            });
+            if (categoryWasPosted) {
+              reject({
+                statusCode: 403,
+                message:
+                  'Impossível excluir pois já existem despesas criadas com esta categoria',
               });
             } else {
-              reject({
-                code: 400,
-                message:
-                  'Ocorreu um erro ao excluir os dados. Tente novamente!',
+              const { affected } = await this.categoryRepository.delete({
+                id: Equal(category.id),
               });
+
+              if (affected > 0) {
+                resolve({
+                  statusCode: 200,
+                  message: 'Dados excluídos com sucesso',
+                });
+              } else {
+                reject({
+                  code: 400,
+                  message:
+                    'Ocorreu um erro ao excluir os dados. Tente novamente!',
+                });
+              }
             }
           }
         }
