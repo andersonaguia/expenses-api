@@ -6,12 +6,15 @@ import { DefaultResponseDto } from 'src/core/common/dto/default-response.dto';
 import { UsersService } from 'src/modules/users/services/users.service';
 import { SubcategoryResponseDto } from '../dto/subcategory-response.dto';
 import { UpdateSubcategoryDto } from '../dto/update-subcategory.dto';
+import { ExpenseEntity } from 'src/modules/expense/entities/expense.entity';
 
 @Injectable()
 export class SubcategoryService {
   constructor(
     @Inject('SUBCATEGORY_REPOSITORY')
     private readonly subcategoryRepository: Repository<SubcategoryEntity>,
+    @Inject('EXPENSE_REPOSITORY')
+    private readonly expenseRepository: Repository<ExpenseEntity>,
     private readonly usersService: UsersService,
   ) {}
 
@@ -199,29 +202,35 @@ export class SubcategoryService {
               message: 'Subcategoria não encontrada',
             });
           } else {
-            const dataToUpdate = {
-              modifiedBy: user,
-              deletedAt: new Date(),
-            };
-
-            const { affected } = await this.subcategoryRepository.update(
-              {
-                id: Equal(subcategory.id),
+            const subcategoryWasPosted = await this.expenseRepository.findOne({
+              where: {
+                subcategory: { id: Equal(subcategory.id) },
+                deletedAt: IsNull(),
               },
-              dataToUpdate,
-            );
-
-            if (affected > 0) {
-              resolve({
-                statusCode: 200,
-                message: 'Dados excluídos com sucesso',
+            });
+            if (subcategoryWasPosted) {
+              reject({
+                statusCode: 403,
+                message:
+                  'Impossível excluir pois já existem despesas criadas que utilizam esta subcategoria',
               });
             } else {
-              reject({
-                code: 400,
-                message:
-                  'Ocorreu um erro ao excluir os dados. Tente novamente!',
+              const { affected } = await this.subcategoryRepository.delete({
+                id: Equal(subcategory.id),
               });
+
+              if (affected > 0) {
+                resolve({
+                  statusCode: 200,
+                  message: 'Dados excluídos com sucesso',
+                });
+              } else {
+                reject({
+                  code: 400,
+                  message:
+                    'Ocorreu um erro ao excluir os dados. Tente novamente!',
+                });
+              }
             }
           }
         }

@@ -664,62 +664,14 @@ Headers: {
 
 <div align="center">
 <h2>Anderson Aguiar</h2>
-<a href="https://www.linkedin.com/in/andersonlaguiar/" target="blank">
+<a href="https://www.linkedin.com/in/andersonlaguiar/" target="_blank">
 <img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="logo Linkedin" />
 </a>
-<button onclick="copyToClipboard()"><img title="andersonlaguiar@gmail.com" id="tooltip" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="logo Gmail" /></button>
-<a href="https://www.instagram.com/anders.aguiar/?igshid=ZDdkNTZiNTM%3D" target="blank">
+<img title="andersonlaguiar@gmail.com" src="https://img.shields.io/badge/Gmail-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="logo Gmail" />
+<a href="https://www.instagram.com/anders.aguiar/?igshid=ZDdkNTZiNTM%3D" target="_blank">
 <img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="logo Instagram" />
 </a>
 </div>
-
-<style>
-  button {
-    background-color: transparent;
-    border: none;
-  }
-
-  button:hover{
-    cursor:pointer;
-  }
-
-  img {
-    width: 100px;
-    height: 25px;
-  }
-
-  img[title] {
-    position: relative;
-  }
-
-  img[title]::after {
-        content: attr(title);
-        position: absolute;
-        background-color: #333;
-        color: #fff;
-        padding: 5px;
-        border-radius: 5px;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    abbr[title]:hover::after,
-    abbr[title]:focus::after {
-        opacity: 1;
-    }
-</style>
-
-<script>
-    copyToClipboard() => {
-        var tooltipText = document.getElementById('tooltip').getAttribute('title');
-        navigator.clipboard.writeText(tooltipText);
-        alert('Texto copiado!');
-    }
-</script>
-
 
 ## Licença
 

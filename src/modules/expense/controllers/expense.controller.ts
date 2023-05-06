@@ -35,10 +35,10 @@ export class ExpenseController {
     try {
       return await this.expenseService.create(expense, req);
     } catch (error) {
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
-      if (error.code === 'ER_DUP_ENTRY') {
+      if (error.code == 'ER_DUP_ENTRY') {
         throw new HttpException(
           {
             statusCode: 409,
@@ -72,13 +72,13 @@ export class ExpenseController {
     try {
       return await this.expenseService.update(data, +id, req);
     } catch (error) {
-      if (error.code === 400) {
+      if (error.statusCode === 400) {
         throw new HttpException(error, HttpStatus.BAD_REQUEST);
       }
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
-      if (error.code === 409) {
+      if (error.statusCode === 409) {
         throw new HttpException(error, HttpStatus.CONFLICT);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
@@ -95,10 +95,14 @@ export class ExpenseController {
     try {
       return await this.expenseService.delete(+id, req);
     } catch (error) {
-      if (error.code === 400) {
+      if (error.statusCode === 400) {
         throw new HttpException(error, HttpStatus.BAD_REQUEST);
       }
-      if (error.code === 404) {
+      if (error.statusCode === 403) {
+        console.log('403');
+        throw new HttpException(error, HttpStatus.FORBIDDEN);
+      }
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
