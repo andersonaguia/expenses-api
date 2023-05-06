@@ -28,7 +28,7 @@ export class authController {
     try {
       return await this.authService.signIn(credentials);
     } catch (error) {
-      if (error.code == 401) {
+      if (error.statusCode == 401) {
         throw new HttpException(error, HttpStatus.UNAUTHORIZED);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
@@ -45,7 +45,7 @@ export class authController {
     try {
       return await this.authService.signUp(user);
     } catch (error) {
-      if (error.code == 409) {
+      if (error.statusCode == 409) {
         throw new HttpException(error, HttpStatus.CONFLICT);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);

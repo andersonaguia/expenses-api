@@ -35,10 +35,10 @@ export class SubcategoryController {
     try {
       return await this.subcategoryService.create(subcategory, req);
     } catch (error) {
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
-      if (error.code === 409) {
+      if (error.statusCode === 409) {
         throw new HttpException(error, HttpStatus.CONFLICT);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
@@ -66,13 +66,13 @@ export class SubcategoryController {
     try {
       return await this.subcategoryService.update(data, +id, req);
     } catch (error) {
-      if (error.code === 400) {
+      if (error.statusCode === 400) {
         throw new HttpException(error, HttpStatus.BAD_REQUEST);
       }
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
-      if (error.code === 409) {
+      if (error.statusCode === 409) {
         throw new HttpException(error, HttpStatus.CONFLICT);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
@@ -89,10 +89,13 @@ export class SubcategoryController {
     try {
       return await this.subcategoryService.delete(+id, req);
     } catch (error) {
-      if (error.code === 400) {
+      if (error.statusCode === 400) {
         throw new HttpException(error, HttpStatus.BAD_REQUEST);
       }
-      if (error.code === 404) {
+      if (error.statusCode === 403) {
+        throw new HttpException(error, HttpStatus.FORBIDDEN);
+      }
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);

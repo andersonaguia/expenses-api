@@ -32,7 +32,7 @@ export class EvolutionController {
     try {
       return await this.evolutionService.create(evolution, req);
     } catch (error) {
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
@@ -45,7 +45,7 @@ export class EvolutionController {
     try {
       return await this.evolutionService.findAll();
     } catch (error) {
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
@@ -58,7 +58,7 @@ export class EvolutionController {
     try {
       return await this.evolutionService.findByCategory(+categoryId);
     } catch (error) {
-      if (error.code === 404) {
+      if (error.statusCode === 404) {
         throw new HttpException(error, HttpStatus.NOT_FOUND);
       }
       throw new HttpException({ reason: error }, HttpStatus.BAD_REQUEST);
